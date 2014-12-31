@@ -1,93 +1,62 @@
 package pl.najczuk.differential_evolution.image_processing.helpers;
 
+import pl.najczuk.differential_evolution.population.Genotype;
+
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
+import java.awt.image.*;
 
 public class ImageChanger {
 
+    public static BufferedImage changeImageGenotype(BufferedImage inImage, Genotype genotype) {
 
+        float contrast = denormalize(genotype.getContrast(), Genotype.C_MIN, Genotype.C_MAX);
+        float brightness = denormalize(genotype.getContrast(), Genotype.B_MIN, Genotype.B_MAX);
+        float r = denormalize(genotype.getR(), Genotype.RGB_MIN, Genotype.RGB_MAX);
+        float g = denormalize(genotype.getG(), Genotype.RGB_MIN, Genotype.RGB_MAX);
+        float b = denormalize(genotype.getB(), Genotype.RGB_MIN, Genotype.RGB_MAX);
+        double gR = denormalize(genotype.getGammaR(), Genotype.GAMMA_MIN, Genotype.GAMMA_MAX);
+        double gG = denormalize(genotype.getGammaG(), Genotype.GAMMA_MIN, Genotype.GAMMA_MAX);
+        double gB = denormalize(genotype.getGammaB(), Genotype.GAMMA_MIN, Genotype.GAMMA_MAX);
 
-    public static BufferedImage changeContrast(BufferedImage inImage, float scaleFactor) {
-
-        int w = inImage.getWidth();
-        int h = inImage.getHeight();
-
-        BufferedImage outImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        RescaleOp op = new RescaleOp(scaleFactor,0.0f,null);
-        outImage=op.filter(inImage,null);
-
-        return outImage;
-    }
-    public static BufferedImage changeBrightness(BufferedImage inImage, float offset) {
-
-        int w = inImage.getWidth();
-        int h = inImage.getHeight();
-
-        BufferedImage outImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        RescaleOp op = new RescaleOp(1.0f,offset,null);
-        outImage=op.filter(inImage,null);
-
-        return outImage;
-    }
-    public static BufferedImage changeR(BufferedImage inImage, float offset) {
-
-        int w = inImage.getWidth();
-        int h = inImage.getHeight();
-        float[]factors = {1.0f,1.0f,1.0f};
-        float[]offsets = {offset,1.0f,1.0f};
-
-        BufferedImage outImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        RescaleOp op = new RescaleOp(factors,offsets,null);
-        outImage=op.filter(inImage,null);
-
-        return outImage;
-    }
-    public static BufferedImage changeG(BufferedImage inImage, float offset) {
-
-        int w = inImage.getWidth();
-        int h = inImage.getHeight();
-        float[]factors = {1.0f,1.0f,1.0f};
-        float[]offsets = {1.0f,offset,1.0f};
-
-        BufferedImage outImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        RescaleOp op = new RescaleOp(factors,offsets,null);
-        outImage=op.filter(inImage,null);
-
-        return outImage;
-    }
-    public static BufferedImage changeB(BufferedImage inImage, float offset) {
-
-        int w = inImage.getWidth();
-        int h = inImage.getHeight();
-        float[]factors = {1.0f,1.0f,1.0f};
-        float[]offsets = {1.0f,1.0f,offset};
-
-        BufferedImage outImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        RescaleOp op = new RescaleOp(factors,offsets,null);
-        outImage=op.filter(inImage,null);
-
-        return outImage;
+        BufferedImage imageToProcess = deepCopy(inImage);
+        return changeImage(imageToProcess,contrast,brightness,r,g,b,gR,gG,gB);
     }
 
+    private static float denormalize(double value, double min, double max) {
+        float denormalizedValue = (float) (value * (max - min) + min);
+        return denormalizedValue;
+    }
 
-    public static BufferedImage changeGammaR(BufferedImage inImage, double gamma) {
+    private static BufferedImage changeImage(BufferedImage inImage,float contrast, float brightness, float r, float g, float b, double gR,
+                                             double gG, double gB) {
+        System.out.println("contrast = [" + contrast + "], brightness = [" + brightness + "], r = [" + r + "], g = [" + g + "], b = [" + b + "], gR = [" + gR + "], gG = [" + gG + "], gB = [" + gB + "]");
 
+        float[] factors = {contrast, contrast, contrast};
+        float[] offsets = {brightness + r, brightness + g, brightness + b};
+        RescaleOp CBRGBFilter = new RescaleOp(factors, offsets, null);
+
+
+        BufferedImage gammaImage = changeGammaRGB(inImage,gR,gG,gB);
+        CBRGBFilter.filter(inImage,inImage);
+        return inImage;
+    }
+
+    private static BufferedImage changeGammaRGB(BufferedImage inImage, double gammaR, double gammaG, double gammaB) {
+        System.out.println("gammaR = [" + gammaR + "], gammaG = [" + gammaG + "], gammaB = [" + gammaB + "]");
         int w = inImage.getWidth();
         int h = inImage.getHeight();
-
-        BufferedImage outImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        int r, g, b;
+        Color color;
 
         for (int i = 0; i < w; i++) {
             for (int j = 0; j < h; j++) {
 
-                Color color = new Color(inImage.getRGB(i, j));
+                color = new Color(inImage.getRGB(i, j));
 
-                int r, g, b;
 
-                r = (int)Math.pow((double)color.getRed(),gamma);
-                g = color.getGreen();
-                b = color.getBlue();
+                r = (int) Math.pow((double) color.getRed(), gammaR);
+                g = (int) Math.pow((double) color.getGreen(), gammaG);
+                b = (int) Math.pow((double) color.getBlue(), gammaB);
 
 
                 //r,g,b values which are out of the range 0 to 255 should set to 0 or 255
@@ -109,101 +78,17 @@ public class ImageChanger {
                     b = 0;
                 }
 
-                outImage.setRGB(i, j, new Color(r, g, b).getRGB());
-
+                inImage.setRGB(i, j, new Color(r, g, b).getRGB());
             }
         }
 
-        return outImage;
+        return inImage;
     }
-    public static BufferedImage changeGammaG(BufferedImage inImage, double gamma) {
 
-        int w = inImage.getWidth();
-        int h = inImage.getHeight();
-
-        BufferedImage outImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-
-        for (int i = 0; i < w; i++) {
-            for (int j = 0; j < h; j++) {
-
-                Color color = new Color(inImage.getRGB(i, j));
-
-                int r, g, b;
-
-                r = color.getRed();
-                g = (int)Math.pow((double)color.getGreen(),gamma);
-                b = color.getBlue();
-
-
-                //r,g,b values which are out of the range 0 to 255 should set to 0 or 255
-                if (r >= 256) {
-                    r = 255;
-                } else if (r < 0) {
-                    r = 0;
-                }
-
-                if (g >= 256) {
-                    g = 255;
-                } else if (g < 0) {
-                    g = 0;
-                }
-
-                if (b >= 256) {
-                    b = 255;
-                } else if (b < 0) {
-                    b = 0;
-                }
-
-                outImage.setRGB(i, j, new Color(r, g, b).getRGB());
-
-            }
-        }
-
-        return outImage;
-    }
-    public static BufferedImage changeGammaB(BufferedImage inImage, double gamma) {
-
-        int w = inImage.getWidth();
-        int h = inImage.getHeight();
-
-        BufferedImage outImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-
-        for (int i = 0; i < w; i++) {
-            for (int j = 0; j < h; j++) {
-
-                Color color = new Color(inImage.getRGB(i, j));
-
-                int r, g, b;
-
-                r = color.getRed();
-                g = color.getGreen();
-                b =(int)Math.pow((double)color.getBlue(),gamma);
-
-
-                //r,g,b values which are out of the range 0 to 255 should set to 0 or 255
-                if (r >= 256) {
-                    r = 255;
-                } else if (r < 0) {
-                    r = 0;
-                }
-
-                if (g >= 256) {
-                    g = 255;
-                } else if (g < 0) {
-                    g = 0;
-                }
-
-                if (b >= 256) {
-                    b = 255;
-                } else if (b < 0) {
-                    b = 0;
-                }
-
-                outImage.setRGB(i, j, new Color(r, g, b).getRGB());
-
-            }
-        }
-
-        return outImage;
+    static BufferedImage deepCopy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 }
