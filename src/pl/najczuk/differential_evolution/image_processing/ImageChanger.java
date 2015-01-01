@@ -1,4 +1,4 @@
-package pl.najczuk.differential_evolution.image_processing.helpers;
+package pl.najczuk.differential_evolution.image_processing;
 
 import pl.najczuk.differential_evolution.population.Genotype;
 
