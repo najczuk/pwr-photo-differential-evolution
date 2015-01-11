@@ -9,14 +9,14 @@ public class ImageChanger {
 
     public static BufferedImage changeImageGenotype(BufferedImage inImage, Genotype genotype) {
 
-        float contrast = denormalize(genotype.getContrast(), Genotype.C_MIN, Genotype.C_MAX);
-        float brightness = denormalize(genotype.getContrast(), Genotype.B_MIN, Genotype.B_MAX);
-        float r = denormalize(genotype.getR(), Genotype.RGB_MIN, Genotype.RGB_MAX);
-        float g = denormalize(genotype.getG(), Genotype.RGB_MIN, Genotype.RGB_MAX);
-        float b = denormalize(genotype.getB(), Genotype.RGB_MIN, Genotype.RGB_MAX);
-        double gR = denormalize(genotype.getGammaR(), Genotype.GAMMA_MIN, Genotype.GAMMA_MAX);
-        double gG = denormalize(genotype.getGammaG(), Genotype.GAMMA_MIN, Genotype.GAMMA_MAX);
-        double gB = denormalize(genotype.getGammaB(), Genotype.GAMMA_MIN, Genotype.GAMMA_MAX);
+        float contrast = denormalize(genotype.getContrast(), genotype.getGenotypePopulation().C_MIN, genotype.getGenotypePopulation().C_MAX);
+        float brightness = denormalize(genotype.getContrast(), genotype.getGenotypePopulation().B_MIN, genotype.getGenotypePopulation().B_MAX);
+        float r = denormalize(genotype.getR(), genotype.getGenotypePopulation().RGB_MIN, genotype.getGenotypePopulation().RGB_MAX);
+        float g = denormalize(genotype.getG(), genotype.getGenotypePopulation().RGB_MIN, genotype.getGenotypePopulation().RGB_MAX);
+        float b = denormalize(genotype.getB(), genotype.getGenotypePopulation().RGB_MIN, genotype.getGenotypePopulation().RGB_MAX);
+        double gR = denormalize(genotype.getGammaR(), genotype.getGenotypePopulation().GAMMA_MIN, genotype.getGenotypePopulation().GAMMA_MAX);
+        double gG = denormalize(genotype.getGammaG(), genotype.getGenotypePopulation().GAMMA_MIN, genotype.getGenotypePopulation().GAMMA_MAX);
+        double gB = denormalize(genotype.getGammaB(), genotype.getGenotypePopulation().GAMMA_MIN, genotype.getGenotypePopulation().GAMMA_MAX);
 
         BufferedImage imageToProcess = deepCopy(inImage);
         return changeImage(imageToProcess,contrast,brightness,r,g,b,gR,gG,gB);

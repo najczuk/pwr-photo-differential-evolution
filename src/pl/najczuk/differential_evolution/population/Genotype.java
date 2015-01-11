@@ -11,12 +11,8 @@ public class Genotype {
     private double brightness, contrast, r, g, b;
     private double gammaR, gammaG, gammaB;
     public static final int DIFFERENTIAL_CROSSOVER = 0, ADDITIVE_CROSSOVER = 1;
-    public static final double
-            C_MIN = 0.7, C_MAX = 1.3,
-            B_MIN = -20, B_MAX = 20,
-            RGB_MIN = -20, RGB_MAX = 20,
-            GAMMA_MIN = 0.9, GAMMA_MAX = 1.1;
-    private double mutationControlConstants[]= {0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1};
+    public Population genotypePopulation;
+
 
     /**
      * Constructor for given genotype parameters
@@ -31,7 +27,9 @@ public class Genotype {
      * @param gammaB
      */
     public Genotype(float brightness, float contrast, float r, float g, float b, double gammaR, double gammaG, double
-            gammaB) {
+            gammaB,Population genotypePopulation) {
+
+        this.genotypePopulation = genotypePopulation;
         this.brightness = brightness;
         this.contrast = contrast;
         this.r = r;
@@ -45,8 +43,9 @@ public class Genotype {
     /**
      * Constructor for random genotype using gaussian distribution
      */
-    public Genotype() {
+    public Genotype(Population genotypePopulation) {
 
+        this.genotypePopulation = genotypePopulation;
         this.brightness = getRandomGaussianValue();
         this.contrast = getRandomGaussianValue();
         this.r = getRandomGaussianValue();
@@ -55,6 +54,7 @@ public class Genotype {
         this.gammaR = getRandomGaussianValue();
         this.gammaG = getRandomGaussianValue();
         this.gammaB = getRandomGaussianValue();
+
     }
 
     /**
@@ -62,7 +62,8 @@ public class Genotype {
      * @param g2   second genotype used for creation from crossover
      * @param flag type of crossover to be used DIFFERENTIAL_CROSSOVER or ADDITIVE_CROSSOVER
      */
-    public Genotype(Genotype g1, Genotype g2, int flag) {
+    public Genotype(Genotype g1, Genotype g2, int flag,Population genotypePopulation) {
+        this.genotypePopulation = genotypePopulation;
         this.brightness = flag == ADDITIVE_CROSSOVER ? addGenomes(g1.getBrightness(), g2.getBrightness())
                 : diffGenomes(g1.getBrightness(), g2.getBrightness(),0);
 
@@ -88,7 +89,9 @@ public class Genotype {
                 : diffGenomes(g1.getGammaB(), g2.getGammaB(),7);
     }
 
-    public Genotype(Genotype g1, Genotype g2, double crossoverThreshold) {
+    public Genotype(Genotype g1, Genotype g2, double crossoverThreshold, Population genotypePopulation) {
+
+        this.genotypePopulation = genotypePopulation;
         this.brightness = isGenomeCrossing(crossoverThreshold) ? g2.getBrightness() : g1.getBrightness();
         this.contrast = isGenomeCrossing(crossoverThreshold) ? g2.getContrast() : g1.getContrast();
         this.r = isGenomeCrossing(crossoverThreshold) ? g2.getR() : g1.getR();
@@ -99,9 +102,11 @@ public class Genotype {
         this.gammaB = isGenomeCrossing(crossoverThreshold) ? g2.getGammaB() : g1.getGammaB();
     }
 
-    public Genotype(Genotype g1,Genotype g2,Genotype g3){
-        Genotype diffGenotype = new Genotype(g2,g3,DIFFERENTIAL_CROSSOVER);
-        Genotype mutantGenotype = new Genotype(g1,diffGenotype,ADDITIVE_CROSSOVER);
+    public Genotype(Genotype g1,Genotype g2,Genotype g3,Population genotypePopulation){
+
+        this.genotypePopulation = genotypePopulation;
+        Genotype diffGenotype = new Genotype(g2,g3,DIFFERENTIAL_CROSSOVER,genotypePopulation);
+        Genotype mutantGenotype = new Genotype(g1,diffGenotype,ADDITIVE_CROSSOVER,genotypePopulation);
 
         this.brightness = mutantGenotype.getBrightness();
         this.contrast = mutantGenotype.getContrast();
@@ -133,7 +138,8 @@ public class Genotype {
     }
 
     private double diffGenomes(double g1, double g2,int genomeIndex) {
-        double diff = (g1 - g2)* mutationControlConstants[genomeIndex] < 0 ? 0 : (g1 - g2)* mutationControlConstants[genomeIndex];
+        double diff = (g1 - g2)* genotypePopulation.mutationControlConstants[genomeIndex] < 0 ? 0 : (g1 - g2)*
+                genotypePopulation.mutationControlConstants[genomeIndex];
         return diff;
     }
 
@@ -181,5 +187,9 @@ public class Genotype {
 
     public double getGammaB() {
         return gammaB;
+    }
+
+    public Population getGenotypePopulation() {
+        return genotypePopulation;
     }
 }
