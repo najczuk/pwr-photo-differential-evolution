@@ -4,6 +4,7 @@ import pl.najczuk.differential_evolution.image_processing.ImageChanger;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -42,6 +43,10 @@ public class Population {
         this.GAMMA_MIN = GAMMA_MIN;
         this.GAMMA_MAX = GAMMA_MAX;
         this.mutationControlConstants = mutationControlConstants;
+        System.out.println("CROSSOVER_THRESHOLD = [" + CROSSOVER_THRESHOLD + "], c_MIN = [" + c_MIN + "], c_MAX = ["
+                + c_MAX + "], b_MIN = [" + b_MIN + "], b_MAX = [" + b_MAX + "], RGB_MIN = [" + RGB_MIN + "], RGB_MAX " +
+                "= [" + RGB_MAX + "], GAMMA_MIN = [" + GAMMA_MIN + "], GAMMA_MAX = [" + GAMMA_MAX + "], " +
+                "mutationControlConstants = [" + Arrays.toString(mutationControlConstants) + "]");
     }
 
     public void extendPopulation(Genotype genotype){

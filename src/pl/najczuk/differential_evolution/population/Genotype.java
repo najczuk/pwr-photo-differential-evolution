@@ -113,6 +113,7 @@ public class Genotype {
         this.r = mutantGenotype.getR();
         this.g = mutantGenotype.getG();
         this.b = mutantGenotype.getB();
+        this.b = mutantGenotype.getB();
         this.gammaR = mutantGenotype.getGammaR();
         this.gammaG = mutantGenotype.getGammaG();
         this.gammaB = mutantGenotype.getGammaB();
