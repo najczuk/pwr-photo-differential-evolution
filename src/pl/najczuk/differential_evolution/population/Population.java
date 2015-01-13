@@ -21,13 +21,13 @@ public class Population {
             B_MIN = -20, B_MAX = 20,
             RGB_MIN = -20, RGB_MAX = 20,
             GAMMA_MIN = 0.9, GAMMA_MAX = 1.1;
-    public double mutationControlConstants[]= {0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1};
+    public double mutationControlConstants[] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
 
     public Population() {
         genotypes = new ArrayList<Genotype>();
     }
 
-    public void setParameters(){
+    public void setParameters() {
 
     }
 
@@ -49,7 +49,7 @@ public class Population {
                 "mutationControlConstants = [" + Arrays.toString(mutationControlConstants) + "]");
     }
 
-    public void extendPopulation(Genotype genotype){
+    public void extendPopulation(Genotype genotype) {
         genotypes.add(genotype);
     }
 
@@ -72,19 +72,22 @@ public class Population {
 
     private Genotype generateChild(Genotype parent) {
         Genotype g1, g2, g3, child, mutant;
-        if (genotypes.size() < 3) {
+        if (genotypes.size() < 1) {
             g1 = new Genotype(this);
             g2 = new Genotype(this);
             g3 = new Genotype(this);
-            mutant = new Genotype(g1, g2, g3,this);
-            child = new Genotype(parent, mutant, CROSSOVER_THRESHOLD,this);
+        } else if (genotypes.size() < 2) {
+            g1 = getRandomGenotype();
+            g2 = new Genotype(this);
+            g3 = new Genotype(this);
         } else {
             g1 = getRandomGenotype();
             g2 = getRandomGenotype();
             g3 = getRandomGenotype();
-            mutant = new Genotype(g1, g2, g3,this);
-            child = new Genotype(parent, mutant, CROSSOVER_THRESHOLD,this);
         }
+
+        mutant = new Genotype(g1, g2, g3, this);
+        child = new Genotype(parent, mutant, CROSSOVER_THRESHOLD, this);
         return child;
     }
 
@@ -102,6 +105,7 @@ public class Population {
             return true;
         else return false;
     }
+
     public boolean shouldContinue() {
         System.out.println("Czy kontunuować? (T/N)?");
         Scanner in = new Scanner(System.in);

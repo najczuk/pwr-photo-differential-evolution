@@ -48,10 +48,11 @@ public class GUI {
     private JScrollPane rightPicScrollPane;
     private JButton readFile;
     private JFileChooser fc;
-
+    boolean second=false;
     BufferedImage originalImage, currentImage, tmpImage;
     Population population;
     Genotype mutant;
+    int counter = 1;
 
     //confFields
     public double
@@ -204,20 +205,27 @@ public class GUI {
         yesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                population.extendPopulation(mutant);
+                counter++;
                 mutant = population.evolve();
                 currentImage = tmpImage;
                 drawImage(currentImage, leftPicScrollPane);
-                tmpImage = ImageChanger.changeImageGenotype(currentImage, mutant);
+                tmpImage = ImageChanger.changeImageGenotype(originalImage, mutant);
                 drawImage(tmpImage, rightPicScrollPane);
-                population.extendPopulation(mutant);
+                counter++;
+                System.out.println(counter);
             }
         });
         noButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 mutant = population.evolve();
-                tmpImage = ImageChanger.changeImageGenotype(currentImage, mutant);
+                tmpImage = ImageChanger.changeImageGenotype(originalImage, mutant);
                 drawImage(tmpImage, rightPicScrollPane);
+
+                counter++;
+                System.out.println(counter);
             }
         });
         endButton.addActionListener(new ActionListener() {
@@ -226,6 +234,7 @@ public class GUI {
 
             }
         });
+
         readFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -234,10 +243,11 @@ public class GUI {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
                     try {
+                        population = new Population();
                         originalImage = ImageIO.read(file);
                         currentImage = ImageIO.read(file);
                         drawImage(currentImage, leftPicScrollPane);
-                        tmpImage = ImageChanger.changeImageGenotype(originalImage, mutant);
+                        tmpImage = ImageChanger.changeImageGenotype(currentImage, mutant);
                         drawImage(tmpImage, rightPicScrollPane);
                     } catch (IOException e1) {
                         e1.printStackTrace();
